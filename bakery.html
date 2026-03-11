@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flour & Soul Bakery</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5EDD9;
+    --warm-white: #FBF6EE;
+    --caramel: #C4883A;
+    --dark-caramel: #9B6420;
+    --espresso: #2C1A0E;
+    --cocoa: #5C3D22;
+    --blush: #E8C5A0;
+    --sage: #7A8C6E;
+    --dusty-rose: #C9998A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background-color: var(--cream);
+    color: var(--espresso);
+    font-family: 'Cormorant Garamond', serif;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* Custom cursor */
+  .cursor {
+    width: 12px; height: 12px;
+    background: var(--caramel);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+    mix-blend-mode: multiply;
+  }
+  .cursor-ring {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--caramel);
+    border-radius: 50%;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, width 0.3s ease, height 0.3s ease;
+    opacity: 0.6;
+  }
+  body:hover .cursor { opacity: 1; }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    padding: 24px 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    mix-blend-mode: multiply;
+  }
+  .nav-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: var(--espresso);
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 40px; list-style: none; }
+  .nav-links a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cocoa);
+    text-decoration: none;
+    position: relative;
+    transition: color 0.3s;
+  }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -3px; left: 0;
+    width: 0; height: 1px;
+    background: var(--caramel);
+    transition: width 0.4s ease;
+  }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-links a:hover { color: var(--caramel); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 160px 64px 80px 80px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--caramel);
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+  }
+
+  .hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(4rem, 7vw, 7.5rem);
+    line-height: 0.95;
+    font-weight: 900;
+    color: var(--espresso);
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.4s forwards;
+  }
+  .hero-title em {
+    font-style: italic;
+    color: var(--caramel);
+    display: block;
+  }
+
+  .hero-desc {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: var(--cocoa);
+    max-width: 380px;
+    font-weight: 300;
+    margin-bottom: 56px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.6s forwards;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.8s forwards;
+  }
+
+  .btn-primary {
+    background: var(--espresso);
+    color: var(--cream);
+    padding: 18px 44px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.3s, transform 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--caramel);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+  }
+  .btn-primary:hover::before { transform: translateX(0); }
+  .btn-primary span { position: relative; z-index: 1; }
+
+  .btn-ghost {
+    color: var(--cocoa);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s, gap 0.3s;
+  }
+  .btn-ghost:hover { color: var(--caramel); gap: 16px; }
+  .btn-ghost::after { content: '→'; font-size: 1rem; }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+    background: var(--blush);
+  }
+
+  .hero-image-bg {
+    position: absolute;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 30% 40%, rgba(196,136,58,0.25) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 70%, rgba(201,153,138,0.3) 0%, transparent 50%),
+      linear-gradient(135deg, #E8C5A0 0%, #D4A878 40%, #C4883A 100%);
+  }
+
+  /* Decorative circles in hero right */
+  .hero-deco {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .hero-deco-1 { width: 500px; height: 500px; top: -100px; right: -100px; }
+  .hero-deco-2 { width: 300px; height: 300px; bottom: 50px; left: 50px; border-color: rgba(44,26,14,0.15); }
+  .hero-deco-3 { width: 150px; height: 150px; top: 40%; right: 30%; border-color: rgba(255,255,255,0.5); }
+
+  /* Large overlapping text in hero */
+  .hero-bg-text {
+    position: absolute;
+    bottom: -20px;
+    right: -30px;
+    font-family: 'Playfair Display', serif;
+    font-size: 22vw;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(44,26,14,0.07);
+    line-height: 1;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hero-badge {
+    position: absolute;
+    bottom: 80px;
+    right: 80px;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    background: var(--espresso);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    animation: rotate 20s linear infinite;
+    z-index: 5;
+  }
+  .hero-badge-inner {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+  }
+  .hero-badge svg {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    inset: 0;
+    animation: rotate 20s linear infinite;
+  }
+  .hero-badge-dot {
+    width: 14px; height: 14px;
+    background: var(--caramel);
+    border-radius: 50%;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 40px;
+    left: 80px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.2s forwards;
+  }
+  .hero-scroll-line {
+    width: 60px; height: 1px;
+    background: var(--caramel);
+    animation: expandWidth 1.5s ease 1.5s both;
+  }
+  .hero-scroll span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cocoa);
+  }
+
+  /* MARQUEE */
+  .marquee-section {
+    background: var(--espresso);
+    padding: 20px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .marquee-track {
+    display: flex;
+    gap: 0;
+    animation: marquee 25s linear infinite;
+    white-space: nowrap;
+  }
+  .marquee-item {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--blush);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-shrink: 0;
+  }
+  .marquee-dot {
+    width: 5px; height: 5px;
+    background: var(--caramel);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* ABOUT */
+  .about {
+    padding: 160px 80px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    align-items: center;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--caramel);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .section-label::before {
+    content: '';
+    width: 40px; height: 1px;
+    background: var(--caramel);
+  }
+
+  .about-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    line-height: 1.15;
+    font-weight: 700;
+    color: var(--espresso);
+    margin-bottom: 32px;
+  }
+  .about-heading em { font-style: italic; color: var(--caramel); }
+
+  .about-text {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--cocoa);
+    font-weight: 300;
+    margin-bottom: 24px;
+  }
+
+  .about-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    margin-top: 64px;
+    padding-top: 48px;
+    border-top: 1px solid rgba(92,61,34,0.15);
+  }
+  .stat-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--caramel);
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--cocoa);
+  }
+
+  .about-visual {
+    position: relative;
+    height: 600px;
+  }
+  .about-card {
+    position: absolute;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .about-card-main {
+    width: 75%;
+    height: 85%;
+    top: 0;
+    right: 0;
+    background: linear-gradient(135deg, #D4A878, #9B6420);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .about-card-accent {
+    width: 55%;
+    height: 55%;
+    bottom: 0;
+    left: 0;
+    background: var(--espresso);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .card-emoji { font-size: 5rem; }
+  .card-text-inner {
+    text-align: center;
+    color: var(--cream);
+    padding: 32px;
+  }
+  .card-text-inner .big { font-family: 'Playfair Display', serif; font-size: 2.5rem; font-style: italic; }
+  .card-text-inner .small { font-family: 'DM Mono', monospace; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; margin-top: 8px; opacity: 0.6; }
+
+  /* MENU */
+  .menu-section {
+    background: var(--warm-white);
+    padding: 160px 80px;
+  }
+  .menu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 80px;
+    max-width: 1400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .menu-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(3rem, 5vw, 5.5rem);
+    font-weight: 900;
+    color: var(--espresso);
+    line-height: 1;
+  }
+  .menu-title em { font-style: italic; color: var(--caramel); display: block; }
+  .menu-subtitle {
+    font-size: 1rem;
+    color: var(--cocoa);
+    max-width: 280px;
+    text-align: right;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .menu-card {
+    background: var(--cream);
+    padding: 52px 44px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s ease;
+    cursor: none;
+  }
+  .menu-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--caramel);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .menu-card:hover { background: var(--blush); }
+  .menu-card:hover::before { transform: scaleX(1); }
+
+  .menu-card-emoji {
+    font-size: 2.5rem;
+    margin-bottom: 28px;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .menu-card:hover .menu-card-emoji { transform: scale(1.15) rotate(-5deg); }
+
+  .menu-card-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--espresso);
+    margin-bottom: 12px;
+  }
+  .menu-card-desc {
+    font-size: 0.95rem;
+    color: var(--cocoa);
+    line-height: 1.7;
+    font-weight: 300;
+    margin-bottom: 28px;
+  }
+  .menu-card-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    color: var(--caramel);
+    font-weight: 700;
+  }
+  .menu-card-tag {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    background: var(--caramel);
+    color: white;
+    padding: 4px 10px;
+  }
+
+  /* SPECIALS / FEATURE */
+  .feature-section {
+    background: var(--espresso);
+    padding: 160px 80px;
+    position: relative;
+    overflow: hidden;
+  }
+  .feature-bg-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Playfair Display', serif;
+    font-size: 30vw;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(255,255,255,0.03);
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+  .feature-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+  }
+  .feature-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--caramel);
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .feature-label::before { content: ''; width: 40px; height: 1px; background: var(--caramel); }
+  .feature-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 4vw, 4.5rem);
+    font-weight: 900;
+    color: var(--cream);
+    line-height: 1.1;
+    margin-bottom: 32px;
+  }
+  .feature-heading em { font-style: italic; color: var(--caramel); }
+  .feature-text {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: var(--blush);
+    font-weight: 300;
+    margin-bottom: 48px;
+  }
+
+  .specials-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .special-item {
+    padding: 32px 0;
+    border-bottom: 1px solid rgba(245,237,217,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: padding 0.3s;
+  }
+  .special-item:hover { padding-left: 16px; }
+  .special-item:first-child { border-top: 1px solid rgba(245,237,217,0.1); }
+  .special-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--cream);
+    margin-bottom: 4px;
+  }
+  .special-note {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(245,237,217,0.4);
+  }
+  .special-price {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--caramel);
+    font-weight: 700;
+  }
+
+  /* HOURS & LOCATION */
+  .info-section {
+    padding: 160px 80px;
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 100px;
+  }
+  .info-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--espresso);
+    margin-bottom: 48px;
+  }
+  .hours-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .hours-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(92,61,34,0.1);
+    font-size: 1rem;
+    color: var(--cocoa);
+  }
+  .hours-day { font-weight: 600; color: var(--espresso); }
+  .hours-time { font-family: 'DM Mono', monospace; font-size: 0.85rem; }
+  .hours-closed { color: var(--dusty-rose); font-family: 'DM Mono', monospace; font-size: 0.8rem; letter-spacing: 0.1em; }
+
+  .location-map {
+    width: 100%;
+    height: 300px;
+    background: linear-gradient(135deg, var(--blush), var(--caramel));
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .map-grid {
+    position: absolute;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(44,26,14,0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(44,26,14,0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .map-pin {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+  .map-pin-dot {
+    width: 24px; height: 24px;
+    background: var(--espresso);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    margin: 0 auto 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+  .map-pin span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--espresso);
+    font-weight: 600;
+  }
+  .address {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--cocoa);
+    font-weight: 300;
+  }
+  .address strong { color: var(--espresso); font-weight: 600; display: block; margin-bottom: 4px; }
+
+  /* TESTIMONIALS */
+  .testimonials {
+    background: var(--blush);
+    padding: 120px 80px;
+    overflow: hidden;
+  }
+  .testimonials-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+  .testimonials-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 4vw, 4rem);
+    font-weight: 700;
+    color: var(--espresso);
+  }
+  .testimonials-title em { font-style: italic; color: var(--caramel); }
+  .testimonials-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .testimonial-card {
+    background: var(--warm-white);
+    padding: 48px 40px;
+    position: relative;
+  }
+  .testimonial-quote {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    color: var(--caramel);
+    line-height: 1;
+    margin-bottom: 24px;
+    font-style: italic;
+  }
+  .testimonial-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--cocoa);
+    font-style: italic;
+    margin-bottom: 32px;
+    font-weight: 300;
+  }
+  .testimonial-author {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--espresso);
+    font-weight: 400;
+  }
+  .testimonial-stars {
+    color: var(--caramel);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    margin-top: 8px;
+  }
+
+  /* NEWSLETTER */
+  .newsletter {
+    background: var(--caramel);
+    padding: 100px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 60px;
+  }
+  .newsletter-text { flex: 1; }
+  .newsletter-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 3vw, 3rem);
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+  .newsletter-heading em { font-style: italic; }
+  .newsletter-sub { font-size: 1rem; color: rgba(245,237,217,0.75); font-weight: 300; }
+  .newsletter-form { display: flex; gap: 0; flex: 1; max-width: 480px; }
+  .newsletter-input {
+    flex: 1;
+    padding: 18px 24px;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: var(--cream);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    outline: none;
+    backdrop-filter: blur(10px);
+  }
+  .newsletter-input::placeholder { color: rgba(245,237,217,0.5); }
+  .newsletter-btn {
+    background: var(--espresso);
+    color: var(--cream);
+    border: none;
+    padding: 18px 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: none;
+    transition: background 0.3s;
+  }
+  .newsletter-btn:hover { background: var(--dark-caramel); }
+
+  /* FOOTER */
+  footer {
+    background: var(--espresso);
+    padding: 80px 80px 40px;
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px;
+    padding-bottom: 60px;
+    border-bottom: 1px solid rgba(245,237,217,0.1);
+    margin-bottom: 40px;
+  }
+  .footer-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--cream);
+    margin-bottom: 16px;
+  }
+  .footer-tagline {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: rgba(245,237,217,0.5);
+    font-weight: 300;
+    max-width: 260px;
+  }
+  .footer-col-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--caramel);
+    margin-bottom: 24px;
+  }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-links a {
+    font-size: 0.9rem;
+    color: rgba(245,237,217,0.5);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--cream); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-copy {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: rgba(245,237,217,0.25);
+  }
+  .footer-socials { display: flex; gap: 24px; }
+  .footer-socials a {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(245,237,217,0.4);
+    text-decoration: none;
+    transition: color 0.3s;
+  }
+  .footer-socials a:hover { color: var(--caramel); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  @keyframes expandWidth {
+    from { width: 0; }
+    to { width: 60px; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  /* Scroll reveal */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+
+  /* HAMBURGER */
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    z-index: 200;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--espresso);
+    transition: all 0.3s ease;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ============================================
+     MOBILE RESPONSIVE — max-width: 768px
+  ============================================ */
+  @media (max-width: 768px) {
+    /* Restore default cursor on touch */
+    body { cursor: auto; }
+    .cursor, .cursor-ring { display: none; }
+
+    /* NAV */
+    nav {
+      padding: 20px 24px;
+      background: var(--cream);
+      box-shadow: 0 1px 0 rgba(92,61,34,0.08);
+      mix-blend-mode: normal;
+    }
+    .nav-hamburger { display: flex; }
+    .nav-links {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--cream);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 36px;
+      z-index: 150;
+      transform: translateX(100%);
+      transition: transform 0.4s ease;
+    }
+    .nav-links.open { transform: translateX(0); }
+    .nav-links a { font-size: 1rem; letter-spacing: 0.2em; }
+
+    /* HERO — stack vertically */
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+    }
+    .hero-left {
+      padding: 120px 24px 60px;
+      order: 1;
+    }
+    .hero-title { font-size: clamp(3rem, 12vw, 5rem); }
+    .hero-desc { font-size: 1rem; max-width: 100%; margin-bottom: 40px; }
+    .hero-cta { flex-wrap: wrap; gap: 16px; }
+    .btn-primary { padding: 15px 32px; font-size: 0.7rem; }
+    .hero-right {
+      order: 2;
+      height: 55vw;
+      min-height: 240px;
+    }
+    .hero-badge { width: 100px; height: 100px; bottom: 20px; right: 20px; }
+    .hero-scroll { display: none; }
+    .hero-deco-1 { width: 280px; height: 280px; }
+    .hero-deco-2 { width: 160px; height: 160px; }
+
+    /* ABOUT */
+    .about {
+      grid-template-columns: 1fr;
+      gap: 48px;
+      padding: 80px 24px;
+    }
+    .about-visual {
+      height: 320px;
+      order: -1;
+    }
+    .card-text-inner .big { font-size: 1.4rem; }
+    .about-stats { grid-template-columns: repeat(3,1fr); gap: 16px; }
+    .stat-num { font-size: 2rem; }
+
+    /* MENU */
+    .menu-section { padding: 80px 24px; }
+    .menu-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .menu-subtitle { text-align: left; max-width: 100%; }
+    .menu-grid { grid-template-columns: 1fr; gap: 2px; }
+    .menu-card { padding: 36px 28px; }
+
+    /* SPECIALS */
+    .feature-section { padding: 80px 24px; }
+    .feature-inner {
+      grid-template-columns: 1fr;
+      gap: 48px;
+    }
+    .feature-heading { font-size: clamp(2rem, 8vw, 3.5rem); }
+
+    /* TESTIMONIALS */
+    .testimonials { padding: 80px 24px; }
+    .testimonials-grid {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    /* INFO */
+    .info-section {
+      grid-template-columns: 1fr;
+      gap: 60px;
+      padding: 80px 24px;
+    }
+
+    /* NEWSLETTER */
+    .newsletter {
+      flex-direction: column;
+      padding: 60px 24px;
+      gap: 32px;
+    }
+    .newsletter-form { flex-direction: column; max-width: 100%; width: 100%; }
+    .newsletter-input { width: 100%; }
+    .newsletter-btn { width: 100%; padding: 18px; text-align: center; }
+    .newsletter-heading { font-size: clamp(1.6rem, 6vw, 2rem); }
+
+    /* FOOTER */
+    footer { padding: 60px 24px 32px; }
+    .footer-top {
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+    }
+    .footer-bottom {
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+    .footer-socials { justify-content: center; }
+  }
+
+  /* ============================================
+     TABLET — max-width: 1024px
+  ============================================ */
+  @media (max-width: 1024px) and (min-width: 769px) {
+    .hero-left { padding: 120px 40px 60px; }
+    .about { padding: 100px 48px; gap: 60px; }
+    .menu-section { padding: 100px 48px; }
+    .menu-grid { grid-template-columns: repeat(2, 1fr); }
+    .feature-section { padding: 100px 48px; }
+    .feature-inner { gap: 60px; }
+    .testimonials-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+    .testimonials-grid .testimonial-card:last-child { grid-column: 1 / -1; max-width: 50%; margin: 0 auto; }
+    .info-section { padding: 100px 48px; gap: 60px; }
+    .newsletter { padding: 80px 48px; }
+    footer { padding: 80px 48px 40px; }
+    .footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
+    nav { padding: 24px 36px; }
+    .nav-links { gap: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">Flour & Soul</a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#menu" onclick="closeMenu()">Menu</a></li>
+    <li><a href="#about" onclick="closeMenu()">Our Story</a></li>
+    <li><a href="#specials" onclick="closeMenu()">Specials</a></li>
+    <li><a href="#visit" onclick="closeMenu()">Visit</a></li>
+    <li><a href="#order" onclick="closeMenu()">Order</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-tag">Est. 2009 · Artisan Bakery</p>
+    <h1 class="hero-title">
+      Baked with<br>
+      <em>love &amp;</em><br>
+      intention.
+    </h1>
+    <p class="hero-desc">Where every loaf tells a story and every pastry is a moment worth savoring. Handcrafted daily using heritage grains and seasonal ingredients.</p>
+    <div class="hero-cta">
+      <a href="#menu" class="btn-primary"><span>Explore Menu</span></a>
+      <a href="#about" class="btn-ghost">Our Story</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-image-bg"></div>
+    <div class="hero-deco hero-deco-1"></div>
+    <div class="hero-deco hero-deco-2"></div>
+    <div class="hero-deco hero-deco-3"></div>
+    <div class="hero-bg-text">Bake</div>
+
+    <!-- Floating pastry icons -->
+    <div style="position:absolute;top:20%;left:20%;font-size:3.5rem;animation:float 4s ease-in-out infinite;opacity:0.9;">🥐</div>
+    <div style="position:absolute;top:45%;right:15%;font-size:2.5rem;animation:float 5s ease-in-out 1s infinite;opacity:0.85;">🎂</div>
+    <div style="position:absolute;bottom:25%;left:35%;font-size:2rem;animation:float 3.5s ease-in-out 0.5s infinite;opacity:0.8;">🍞</div>
+    <div style="position:absolute;top:15%;right:25%;font-size:2rem;animation:float 4.5s ease-in-out 2s infinite;opacity:0.75;">🧁</div>
+
+    <div class="hero-badge">
+      <svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+        <path id="circle-text" d="M 70,70 m -50,0 a 50,50 0 1,1 100,0 a 50,50 0 1,1 -100,0" fill="none"/>
+        <text font-family="DM Mono, monospace" font-size="10.5" fill="#C4883A" letter-spacing="3">
+          <textPath href="#circle-text">FRESH DAILY · BAKED WITH LOVE · ARTISAN ·</textPath>
+        </text>
+      </svg>
+      <div class="hero-badge-dot"></div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span>Scroll to explore</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track">
+    <!-- doubled for seamless loop -->
+    <div class="marquee-item">Sourdough Boule <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Croissants au Beurre <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Cinnamon Morning Buns <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Seasonal Fruit Tarts <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Brioche Feuilletée <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Pain de Campagne <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Madeleines au Citron <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Almond Financiers <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Sourdough Boule <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Croissants au Beurre <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Cinnamon Morning Buns <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Seasonal Fruit Tarts <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Brioche Feuilletée <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Pain de Campagne <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Madeleines au Citron <span class="marquee-dot"></span></div>
+    <div class="marquee-item">Almond Financiers <span class="marquee-dot"></span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div>
+    <p class="section-label reveal">Our Philosophy</p>
+    <h2 class="about-heading reveal reveal-delay-1">Slow bread.<br><em>Fast smiles.</em></h2>
+    <p class="about-text reveal reveal-delay-2">We believe great bread deserves time — long fermentation, careful shaping, and a wood-fired oven that's been seasoned over fifteen years of daily use.</p>
+    <p class="about-text reveal reveal-delay-2">Everything you find in our cases is made from scratch each morning, before the sun rises, by bakers who genuinely love what they do.</p>
+    <div class="about-stats reveal reveal-delay-3">
+      <div>
+        <div class="stat-num">15+</div>
+        <div class="stat-label">Years Baking</div>
+      </div>
+      <div>
+        <div class="stat-num">40+</div>
+        <div class="stat-label">Recipes Daily</div>
+      </div>
+      <div>
+        <div class="stat-num">100%</div>
+        <div class="stat-label">From Scratch</div>
+      </div>
+    </div>
+  </div>
+  <div class="about-visual reveal">
+    <div class="about-card about-card-main">
+      <div style="font-size:6rem;">🍞</div>
+    </div>
+    <div class="about-card about-card-accent">
+      <div class="card-text-inner">
+        <div class="big">"Bread is our love language"</div>
+        <div class="small">— Elena, Head Baker</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section class="menu-section" id="menu">
+  <div class="menu-header reveal">
+    <div>
+      <p class="section-label">What We Bake</p>
+      <h2 class="menu-title">Our<br><em>Menu</em></h2>
+    </div>
+    <p class="menu-subtitle">Everything made fresh before 6am, six days a week. No shortcuts, no compromises.</p>
+  </div>
+  <div class="menu-grid">
+    <div class="menu-card reveal">
+      <div class="menu-card-tag">Bestseller</div>
+      <span class="menu-card-emoji">🥐</span>
+      <h3 class="menu-card-name">Butter Croissant</h3>
+      <p class="menu-card-desc">72-hour laminated dough, French AOP butter, honey glaze. Flaky, golden, impossible to resist.</p>
+      <div class="menu-card-price">$5.50</div>
+    </div>
+    <div class="menu-card reveal reveal-delay-1">
+      <span class="menu-card-emoji">🍞</span>
+      <h3 class="menu-card-name">Country Sourdough</h3>
+      <p class="menu-card-desc">Heirloom wheat blend, 30-hour cold ferment, naturally leavened. A proper loaf for your table.</p>
+      <div class="menu-card-price">$14.00</div>
+    </div>
+    <div class="menu-card reveal reveal-delay-2">
+      <div class="menu-card-tag">New</div>
+      <span class="menu-card-emoji">🍋</span>
+      <h3 class="menu-card-name">Lemon Tart</h3>
+      <p class="menu-card-desc">Sicilian lemon curd, almond frangipane shell, burnt meringue. Bright, tart, unexpectedly complex.</p>
+      <div class="menu-card-price">$8.00</div>
+    </div>
+    <div class="menu-card reveal">
+      <span class="menu-card-emoji">🧁</span>
+      <h3 class="menu-card-name">Brown Butter Muffin</h3>
+      <p class="menu-card-desc">Toasted hazelnut, seasonal jam center, turbinado crust. The muffin that ruins all other muffins.</p>
+      <div class="menu-card-price">$6.00</div>
+    </div>
+    <div class="menu-card reveal reveal-delay-1">
+      <div class="menu-card-tag">Seasonal</div>
+      <span class="menu-card-emoji">🫐</span>
+      <h3 class="menu-card-name">Blueberry Danish</h3>
+      <p class="menu-card-desc">Whipped mascarpone, local blueberry compote, vanilla glaze. Delicate, floral, and deeply satisfying.</p>
+      <div class="menu-card-price">$7.00</div>
+    </div>
+    <div class="menu-card reveal reveal-delay-2">
+      <span class="menu-card-emoji">🎂</span>
+      <h3 class="menu-card-name">Celebration Cake</h3>
+      <p class="menu-card-desc">Custom layered cakes for any occasion — orders placed 48 hours in advance. Ask for our flavor guide.</p>
+      <div class="menu-card-price">From $65</div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECIALS / FEATURE -->
+<section class="feature-section" id="specials">
+  <div class="feature-bg-text">daily</div>
+  <div class="feature-inner">
+    <div>
+      <p class="feature-label reveal">Limited Runs</p>
+      <h2 class="feature-heading reveal reveal-delay-1">This week's<br><em>specials.</em></h2>
+      <p class="feature-text reveal reveal-delay-2">Our bakers draw inspiration from the seasons, farmers' markets, and a healthy obsession with flavor combinations. These rotate every week — when they're gone, they're gone.</p>
+      <a href="#order" class="btn-primary reveal reveal-delay-3"><span>Reserve Yours</span></a>
+    </div>
+    <div class="specials-list reveal">
+      <div class="special-item">
+        <div>
+          <div class="special-name">Pistachio Rose Eclair</div>
+          <div class="special-note">Tue–Thu · Limited to 24</div>
+        </div>
+        <div class="special-price">$9</div>
+      </div>
+      <div class="special-item">
+        <div>
+          <div class="special-name">Fig & Gorgonzola Focaccia</div>
+          <div class="special-note">Weekends only</div>
+        </div>
+        <div class="special-price">$12</div>
+      </div>
+      <div class="special-item">
+        <div>
+          <div class="special-name">Cardamom Kouign-Amann</div>
+          <div class="special-note">Daily · Sells out by 9am</div>
+        </div>
+        <div class="special-price">$7</div>
+      </div>
+      <div class="special-item">
+        <div>
+          <div class="special-name">Earl Grey Canelé</div>
+          <div class="special-note">Fri & Sat only</div>
+        </div>
+        <div class="special-price">$5.50</div>
+      </div>
+      <div class="special-item">
+        <div>
+          <div class="special-name">Black Sesame Babka</div>
+          <div class="special-note">Whole loaf · Pre-order</div>
+        </div>
+        <div class="special-price">$22</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="testimonials-header reveal">
+    <p class="section-label" style="justify-content:center;">What People Say</p>
+    <h2 class="testimonials-title">Made with <em>love,</em><br>tasted with joy.</h2>
+  </div>
+  <div class="testimonials-grid">
+    <div class="testimonial-card reveal">
+      <div class="testimonial-quote">"</div>
+      <p class="testimonial-text">The sourdough here has completely ruined supermarket bread for me. I drive 45 minutes every Saturday morning and I'd do it again in a heartbeat.</p>
+      <div class="testimonial-author">Marcus T.</div>
+      <div class="testimonial-stars">★★★★★</div>
+    </div>
+    <div class="testimonial-card reveal reveal-delay-1">
+      <div class="testimonial-quote">"</div>
+      <p class="testimonial-text">Ordered a custom cake for my daughter's birthday. Elena called to discuss every detail. The result was beyond anything I imagined — and it tasted even better.</p>
+      <div class="testimonial-author">Priya S.</div>
+      <div class="testimonial-stars">★★★★★</div>
+    </div>
+    <div class="testimonial-card reveal reveal-delay-2">
+      <div class="testimonial-quote">"</div>
+      <p class="testimonial-text">The croissants are genuinely the best I've had outside of Paris. Shattery, buttery, perfect. They're gone by 8:30am for a reason.</p>
+      <div class="testimonial-author">James R.</div>
+      <div class="testimonial-stars">★★★★★</div>
+    </div>
+  </div>
+</section>
+
+<!-- HOURS & LOCATION -->
+<section id="visit">
+  <div class="info-section">
+    <div class="reveal">
+      <p class="section-label">Opening Hours</p>
+      <h2 class="info-heading">When to <em style="font-style:italic;color:var(--caramel);">find us</em></h2>
+      <ul class="hours-list">
+        <li class="hours-item">
+          <span class="hours-day">Monday – Friday</span>
+          <span class="hours-time">7:00 am – 5:00 pm</span>
+        </li>
+        <li class="hours-item">
+          <span class="hours-day">Saturday</span>
+          <span class="hours-time">6:30 am – 4:00 pm</span>
+        </li>
+        <li class="hours-item">
+          <span class="hours-day">Sunday</span>
+          <span class="hours-closed">Closed</span>
+        </li>
+      </ul>
+      <p style="margin-top:32px;font-size:0.9rem;color:var(--cocoa);font-style:italic;">We often sell out of popular items early. We recommend arriving by 9am for the full selection.</p>
+    </div>
+    <div class="reveal reveal-delay-1">
+      <p class="section-label">Location</p>
+      <h2 class="info-heading">Come <em style="font-style:italic;color:var(--caramel);">visit us</em></h2>
+      <div class="location-map">
+        <div class="map-grid"></div>
+        <div class="map-pin">
+          <div class="map-pin-dot"></div>
+          <span>Flour & Soul</span>
+        </div>
+      </div>
+      <address class="address" style="font-style:normal;">
+        <strong>Flour & Soul Bakery</strong>
+        142 Hearthstone Lane<br>
+        Portland, OR 97201<br><br>
+        <a href="tel:+15035550182" style="color:var(--caramel);text-decoration:none;font-family:'DM Mono',monospace;font-size:0.85rem;">(503) 555-0182</a>
+      </address>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<div class="newsletter" id="order">
+  <div class="newsletter-text reveal">
+    <h2 class="newsletter-heading">Get the <em>weekly special</em><br>before anyone else.</h2>
+    <p class="newsletter-sub">Subscribers hear about weekend specials on Friday. Everyone else — good luck.</p>
+  </div>
+  <div class="newsletter-form reveal reveal-delay-1">
+    <input class="newsletter-input" type="email" placeholder="your@email.com">
+    <button class="newsletter-btn">Subscribe</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand">Flour & Soul</div>
+      <p class="footer-tagline">Artisan bakery in the heart of Portland. Every item made by hand, every morning, with real ingredients.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Visit</div>
+      <ul class="footer-links">
+        <li><a href="#">142 Hearthstone Lane</a></li>
+        <li><a href="#">Portland, OR 97201</a></li>
+        <li><a href="#">(503) 555-0182</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Menu</div>
+      <ul class="footer-links">
+        <li><a href="#">Breads</a></li>
+        <li><a href="#">Pastries</a></li>
+        <li><a href="#">Cakes</a></li>
+        <li><a href="#">Specials</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Connect</div>
+      <ul class="footer-links">
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">Newsletter</a></li>
+        <li><a href="#">Wholesale</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-copy">© 2026 Flour & Soul Bakery · All rights reserved · Made with 🧡</p>
+    <div class="footer-socials">
+      <a href="#">Instagram</a>
+      <a href="#">Facebook</a>
+      <a href="#">Pinterest</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Hamburger menu
+  function toggleMenu() {
+    const nav = document.getElementById('navLinks');
+    const btn = document.getElementById('hamburger');
+    nav.classList.toggle('open');
+    btn.classList.toggle('open');
+  }
+  function closeMenu() {
+    document.getElementById('navLinks').classList.remove('open');
+    document.getElementById('hamburger').classList.remove('open');
+  }
+
+  // Custom cursor (desktop only)
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursor-ring');
+  if (window.matchMedia('(pointer: fine)').matches) {
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
+      setTimeout(() => {
+        ring.style.left = e.clientX + 'px';
+        ring.style.top = e.clientY + 'px';
+      }, 60);
+    });
+    document.querySelectorAll('a, button, .menu-card').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.width = '20px';
+        cursor.style.height = '20px';
+        ring.style.width = '54px';
+        ring.style.height = '54px';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.width = '12px';
+        cursor.style.height = '12px';
+        ring.style.width = '36px';
+        ring.style.height = '36px';
+      });
+    });
+  }
+
+  // Scroll reveal
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
